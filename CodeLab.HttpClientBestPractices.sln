@@ -5,6 +5,10 @@ VisualStudioVersion = 17.14.36511.14 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeLab.HttpClientBestPractices.Api", "CodeLab.HttpClientBestPractices.Api\CodeLab.HttpClientBestPractices.Api.csproj", "{6192FAEB-97D5-4C2F-B701-804BE9D6D67F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeLab.HttpClientBestPractices.AppHost", "CodeLab.HttpClientBestPractices.AppHost\CodeLab.HttpClientBestPractices.AppHost.csproj", "{1DCDD298-76EE-43BA-8CBF-E9DDB314FA67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeLab.HttpClientBestPractices.ServiceDefaults", "CodeLab.HttpClientBestPractices.ServiceDefaults\CodeLab.HttpClientBestPractices.ServiceDefaults.csproj", "{0F247281-9910-BDB8-EDB5-5C2258DF67C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{6192FAEB-97D5-4C2F-B701-804BE9D6D67F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6192FAEB-97D5-4C2F-B701-804BE9D6D67F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6192FAEB-97D5-4C2F-B701-804BE9D6D67F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DCDD298-76EE-43BA-8CBF-E9DDB314FA67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DCDD298-76EE-43BA-8CBF-E9DDB314FA67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DCDD298-76EE-43BA-8CBF-E9DDB314FA67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DCDD298-76EE-43BA-8CBF-E9DDB314FA67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F247281-9910-BDB8-EDB5-5C2258DF67C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F247281-9910-BDB8-EDB5-5C2258DF67C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F247281-9910-BDB8-EDB5-5C2258DF67C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F247281-9910-BDB8-EDB5-5C2258DF67C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
