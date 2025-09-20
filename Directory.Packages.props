@@ -1,0 +1,21 @@
+﻿<Project>
+	<PropertyGroup>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageVersion Include="KubernetesClient" Version="17.0.14" />
+		<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+		<!--.NET Aspire packages-->
+		<PackageVersion Include="Aspire.Hosting.AppHost" Version="9.3.1" />
+		<PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.4.0" />
+		<PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.1" />
+		<PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+		<PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+		<PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+		<PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+		<PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
+		<PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.4" />
+		<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.4" />
+		<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.4" />
+	</ItemGroup>
+</Project>

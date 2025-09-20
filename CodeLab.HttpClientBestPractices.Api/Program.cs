@@ -2,44 +2,91 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapGet("/user", async (
+    string apiKey,
+    IHttpClientFactory httpClientFactory,
+    CancellationToken cancellationToken
+    ) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    if (string.IsNullOrEmpty(apiKey))
+    {
+        return Results.BadRequest("API key is required");
+    }
 
-app.MapGet("/weatherforecast", () =>
+    var client = httpClientFactory.CreateClient();
+    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+    client.DefaultRequestHeaders.Add("user-agent", "GitHub-Integration-App");
+
+    try
+    {
+        var response = await client.GetAsync("https://api.github.com/user", cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadFromJsonAsync<object>();
+            return Results.Ok(content);
+        }
+        else
+        {
+            return Results.StatusCode((int)response.StatusCode);
+        }
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
+
+app.MapGet("/repositories", async (
+    string apiKey,
+    IHttpClientFactory httpClientFactory,
+    CancellationToken cancellationToken
+    ) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    if (string.IsNullOrEmpty(apiKey))
+    {
+        return Results.BadRequest("API key is required");
+    }
+
+    var client = httpClientFactory.CreateClient();
+    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+    client.DefaultRequestHeaders.Add("user-agent", "GitHub-Integration-App");
+
+    try
+    {
+        var response = await client.GetAsync("https://api.github.com/user/repos?sort=updated&per_page=100&sort=created&direction=desc", cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadFromJsonAsync<object>();
+            return Results.Ok(content);
+        }
+        else
+        {
+            return Results.StatusCode((int)response.StatusCode);
+        }
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
