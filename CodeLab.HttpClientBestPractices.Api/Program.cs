@@ -30,6 +30,28 @@ builder.Services.AddHttpClient<GitHubClient>(httpClient =>
     httpClient.BaseAddress = new Uri("https://api.github.com/");
     httpClient.DefaultRequestHeaders.Add("user-agent", "GitHub-Integration-App");
 });
+//this part here is adding resiliency to our http client, this here we can configure it as we wish
+//.AddStandardResilienceHandler(); //this one is will configure the same way, but with Microsoft recomendations
+//.AddResilienceHandler("custom", pipeline =>
+//{
+//    pipeline.AddRetry(new HttpRetryStrategyOptions
+//    {
+//        MaxRetryAttempts = 3, //here we are setting the max number of retries for a request
+//        BackoffType = DelayBackoffType.Exponential, //this here will take even more time from one retry to another so the service can recover
+//        UseJitter = true,
+//        Delay = TimeSpan.FromMilliseconds(500)
+//    });
+
+//    pipeline.AddCircuitBreaker(new HttpCircuitBreakerStrategyOptions
+//    {
+//        SamplingDuration = TimeSpan.FromSeconds(10),
+//        FailureRatio = 0.9,
+//        MinimumThroughput = 5,
+//        BreakDuration = TimeSpan.FromSeconds(5),
+//    });
+
+//    pipeline.AddTimeout(TimeSpan.FromSeconds(1)); //here we define the timout, after 1 second it will timeout the call
+//});
 
 //we can up this with some configurations
 //we are using the IOptions pattern to get the settings from configuration
