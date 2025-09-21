@@ -1,6 +1,14 @@
 using CodeLab.HttpClientBestPractices.Api.Clients;
+using CodeLab.HttpClientBestPractices.Api.Endpoints;
+using CodeLab.HttpClientBestPractices.Api.Models;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOptions<HttpClientBestPracticesOptions>()
+    .Bind(builder.Configuration)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 builder.AddServiceDefaults();
 
@@ -23,6 +31,17 @@ builder.Services.AddHttpClient<GitHubClient>(httpClient =>
     httpClient.DefaultRequestHeaders.Add("user-agent", "GitHub-Integration-App");
 });
 
+//we can up this with some configurations
+//we are using the IOptions pattern to get the settings from configuration
+builder.Services.AddHttpClient("gh-client3", (serviceProvider, httpClient) =>
+{
+    var gitHubSettings = serviceProvider.GetRequiredService<IOptions<HttpClientBestPracticesOptions>>().Value;
+
+    httpClient.BaseAddress = new Uri(gitHubSettings.GitHubSettings.BaseUrl);
+    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {gitHubSettings.GitHubSettings.ApiKey}");
+    httpClient.DefaultRequestHeaders.Add("user-agent", gitHubSettings.GitHubSettings.UserAgent);
+});
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -36,132 +55,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/user", async (
-    string apiKey,
-    IHttpClientFactory httpClientFactory,
-    CancellationToken cancellationToken
-    ) =>
-{
-    if (string.IsNullOrEmpty(apiKey))
-    {
-        return Results.BadRequest("API key is required");
-    }
-
-    //we should dispose the client after use
-    //when we create a client with a name, when we create the client we can pass the name to use the settings we defined before
-    using var client = httpClientFactory.CreateClient("gh-client");
-    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-    try
-    {
-        var response = await client.GetAsync("user", cancellationToken);
-
-        if (response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadFromJsonAsync<object>();
-            return Results.Ok(content);
-        }
-        else
-        {
-            return Results.StatusCode((int)response.StatusCode);
-        }
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
-});
-
-app.MapGet("/userv2", async (
-    string apiKey,
-    GitHubClient gitHubClient,
-    CancellationToken cancellationToken
-    ) =>
-{
-    if (string.IsNullOrEmpty(apiKey))
-    {
-        return Results.BadRequest("API key is required");
-    }
-
-    try
-    {
-        var response = await gitHubClient.GetUser(apiKey, cancellationToken);
-
-        if (response is null)
-        {
-            return Results.NotFound();
-        }
-
-        return Results.Ok(response);
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
-});
-
-app.MapGet("/repositories", async (
-    string apiKey,
-    IHttpClientFactory httpClientFactory,
-    CancellationToken cancellationToken
-    ) =>
-{
-    if (string.IsNullOrEmpty(apiKey))
-    {
-        return Results.BadRequest("API key is required");
-    }
-
-    //we should dispose the client after use
-    //when we create a client with a name, when we create the client we can pass the name to use the settings we defined before
-    using var client = httpClientFactory.CreateClient("gh-client");
-    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-    try
-    {
-        var response = await client.GetAsync("user/repos?per_page=100&sort=created&direction=desc", cancellationToken);
-
-        if (response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadFromJsonAsync<object>();
-            return Results.Ok(content);
-        }
-        else
-        {
-            return Results.StatusCode((int)response.StatusCode);
-        }
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
-});
-
-app.MapGet("/repositoriesv2", async (
-    string apiKey,
-    GitHubClient gitHubClient,
-    CancellationToken cancellationToken
-    ) =>
-{
-    if (string.IsNullOrEmpty(apiKey))
-    {
-        return Results.BadRequest("API key is required");
-    }
-
-    try
-    {
-        var response = await gitHubClient.GetRepositories(apiKey, cancellationToken);
-
-        if (response is null)
-        {
-            return Results.NotFound();
-        }
-
-        return Results.Ok(response);
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
-});
+app.MapApiEndpoints();
 
 app.Run();
