@@ -1,7 +1,10 @@
 using CodeLab.HttpClientBestPractices.Api.Clients;
 using CodeLab.HttpClientBestPractices.Api.Endpoints;
+using CodeLab.HttpClientBestPractices.Api.Helpers;
+using CodeLab.HttpClientBestPractices.Api.Helpers.Refit;
 using CodeLab.HttpClientBestPractices.Api.Models;
 using Microsoft.Extensions.Options;
+using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +12,9 @@ builder.Services.AddOptions<HttpClientBestPracticesOptions>()
     .Bind(builder.Configuration)
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+//here we need to add our delegating handler to use it in the requests and in the middleware
+builder.Services.AddTransient<GitHubAuthenticationHandler>();
 
 builder.AddServiceDefaults();
 
@@ -60,9 +66,19 @@ builder.Services.AddHttpClient("gh-client3", (serviceProvider, httpClient) =>
     var gitHubSettings = serviceProvider.GetRequiredService<IOptions<HttpClientBestPracticesOptions>>().Value;
 
     httpClient.BaseAddress = new Uri(gitHubSettings.GitHubSettings.BaseUrl);
-    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {gitHubSettings.GitHubSettings.ApiKey}");
-    httpClient.DefaultRequestHeaders.Add("user-agent", gitHubSettings.GitHubSettings.UserAgent);
-});
+})
+.AddHttpMessageHandler<GitHubAuthenticationHandler>(); //here we use the delegating handler to add the request headers that we need for our requests
+
+//here we inject the refit client to our application
+//we can basically pass the same that we defined in our HttpClient to configure it
+builder.Services.AddRefitClient<IGitHubApi>()
+    .ConfigureHttpClient((serviceProvider, httpClient) =>
+    {
+        var gitHubSettings = serviceProvider.GetRequiredService<IOptions<HttpClientBestPracticesOptions>>().Value;
+
+        httpClient.BaseAddress = new Uri(gitHubSettings.GitHubSettings.BaseUrl);
+    })
+    .AddHttpMessageHandler<GitHubAuthenticationHandler>(); //we can also use it in refit because it uses HttpClient under the hood
 
 var app = builder.Build();
 
